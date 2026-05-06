@@ -46,6 +46,16 @@
     tr.past td { color: #b4b2a9; }
     .skip-badge { font-size: 10px; background: #f1efe8; color: #888780; padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
     footer { margin-top: 2rem; font-size: 12px; color: #b4b2a9; text-align: center; }
+    .resources { margin-top: 1.5rem; background: #fff; border: 0.5px solid #ddddd8; border-radius: 12px; padding: 1.25rem 1.5rem; }
+    .resources h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: #888780; font-weight: 500; margin-bottom: 1rem; }
+    .resource-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (max-width: 520px) { .resource-grid { grid-template-columns: 1fr; } }
+    .resource-card { background: #f9f9f7; border: 0.5px solid #e8e8e3; border-radius: 8px; padding: 0.75rem 1rem; }
+    .resource-card .rc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #b4b2a9; margin-bottom: 4px; }
+    .resource-card a { font-size: 13px; font-weight: 500; color: #378ADD; text-decoration: none; }
+    .resource-card a:hover { text-decoration: underline; }
+    .resource-card .rc-note { font-size: 11px; color: #888780; margin-top: 4px; line-height: 1.5; }
+    .resource-card .rc-note a { font-size: 11px; font-weight: 400; }
   </style>
 </head>
 <body>
@@ -81,7 +91,7 @@
           <th style="width:16%">Sprint</th>
           <th style="width:21%">Refinement</th>
           <th style="width:21%">Planning</th>
-          <th style="width:21%">Int. Review Backlog</th>
+          <th style="width:21%">IRBR</th>
           <th style="width:21%">Avocado</th>
         </tr>
       </thead>
@@ -90,6 +100,29 @@
   </div>
 
   <footer>Rafael joins rotation from sprint 343 · No one repeats back-to-back</footer>
+
+  <div class="resources">
+    <h2>📎 Task resources</h2>
+    <div class="resource-grid">
+      <div class="resource-card">
+        <div class="rc-label">Avocado</div>
+        <a href="https://dt-rnd.atlassian.net/wiki/spaces/BCN/pages/132859141/Petra" target="_blank">Avocado duties →</a>
+      </div>
+      <div class="resource-card">
+        <div class="rc-label">Planning</div>
+        <a href="https://spine-planning-poker.apps.lab.dynatrace.org/create-session" target="_blank">Poker Planning →</a>
+        <div class="rc-note">Spreadsheet: <a href="https://dynatrace-my.sharepoint.com/:x:/p/javier_fernandez/EZe_aOrliihFqsJWTGMPdzEBaO3wCqWZjFKy5UwvvGJa8g?e=EeVWet" target="_blank">open planning doc →</a></div>
+      </div>
+      <div class="resource-card">
+        <div class="rc-label">Internal Review Backlog Round</div>
+        <a href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2440037192/Tasks+and+goals+Internal+review+339" target="_blank">Backlog round →</a>
+        <div class="rc-note">
+          <a href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2439054426/Internal+Review+2026+04+28" target="_blank">Agenda →</a>
+          · Updated links shared on the day. Check the <a href="https://dynatrace.enterprise.slack.com/archives/C02P2E28EP3" target="_blank">Slack channel</a> for the most recent docs.
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
