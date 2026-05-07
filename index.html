@@ -1,233 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Team Rotation Tracker</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f5f5f3;
-      color: #1a1a18;
-      min-height: 100vh;
-      padding: 2rem 1rem;
-    }
-    .page { max-width: 900px; margin: 0 auto; }
-    h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
-    .subtitle { font-size: 14px; color: #888780; margin-bottom: 2rem; }
-    .sprint-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
-    .sprint-label { font-size: 13px; color: #888780; margin-bottom: 2px; }
-    .sprint-num { font-size: 28px; font-weight: 500; }
-    .btn-group { display: flex; gap: 8px; }
-    button {
-      cursor: pointer; font-size: 13px; padding: 8px 14px;
-      border-radius: 8px; border: 0.5px solid #c8c7bf;
-      background: #fff; color: #1a1a18; transition: background 0.1s;
-    }
-    button:hover { background: #efefec; }
-    button:active { transform: scale(0.98); }
-    .btn-reset { color: #888780; }
-    .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-    @media (max-width: 600px) { .cards { grid-template-columns: repeat(2, 1fr); } }
-    .card { background: #fff; border: 0.5px solid #ddddd8; border-radius: 12px; padding: 1rem 1.25rem; }
-    .card-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #888780; margin-bottom: 6px; }
-    .card-person { font-size: 20px; font-weight: 500; }
-    .card-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 6px; margin-top: 6px; }
-    .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 1rem; }
-    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888780; }
-    .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
-    .table-wrap { width: 100%; background: #fff; border: 0.5px solid #ddddd8; border-radius: 12px; overflow: hidden; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
-    th { background: #f5f5f3; padding: 9px 14px; text-align: left; font-weight: 500; color: #888780; border-bottom: 0.5px solid #ddddd8; }
-    td { padding: 9px 14px; border-bottom: 0.5px solid #ddddd8; color: #1a1a18; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    tr:last-child td { border-bottom: none; }
-    tr.current td { background: #eaf3fb; }
-    tr.past td { color: #b4b2a9; }
-    .skip-badge { font-size: 10px; background: #f1efe8; color: #888780; padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
-    footer { margin-top: 2rem; font-size: 12px; color: #b4b2a9; text-align: center; }
-    .resources { margin-top: 1.5rem; background: #fff; border: 0.5px solid #ddddd8; border-radius: 12px; padding: 1.25rem 1.5rem; }
-    .resources h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: #888780; font-weight: 500; margin-bottom: 1rem; }
-    .resource-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    @media (max-width: 520px) { .resource-grid { grid-template-columns: 1fr; } }
-    .resource-card { background: #f9f9f7; border: 0.5px solid #e8e8e3; border-radius: 8px; padding: 0.75rem 1rem; }
-    .resource-card .rc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #b4b2a9; margin-bottom: 4px; }
-    .resource-card a { font-size: 13px; font-weight: 500; color: #378ADD; text-decoration: none; }
-    .resource-card a:hover { text-decoration: underline; }
-    .resource-card .rc-note { font-size: 11px; color: #888780; margin-top: 4px; line-height: 1.5; }
-    .resource-card .rc-note a { font-size: 11px; font-weight: 400; }
-  </style>
-</head>
-<body>
-<div class="page">
-  <h1>Team Petra Rotation Tracker</h1>
-  <p class="subtitle">Luca · Filippo · Edu · Javi · Rafael · Ale</p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Petra Rotation Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <h1>Team Petra Rotation Tracker</h1>
+      <p class="subtitle">Luca · Filippo · Edu · Javi · Rafael · Ale</p>
 
-  <div class="sprint-row">
-    <div>
-      <div class="sprint-label">Current sprint</div>
-      <div class="sprint-num" id="sprint-display">Sprint 340</div>
-    </div>
-    <div class="btn-group">
-      <button onclick="prevSprint()">← Prev</button>
-      <button onclick="nextSprint()">Next →</button>
-      <button class="btn-reset" onclick="resetSprint()">Reset to 340</button>
-    </div>
-  </div>
-
-  <div class="cards" id="act-cards"></div>
-
-  <div class="legend">
-    <div class="legend-item"><span class="dot" style="background:#378ADD"></span>Refinement</div>
-    <div class="legend-item"><span class="dot" style="background:#1D9E75"></span>Planning</div>
-    <div class="legend-item"><span class="dot" style="background:#D4537E"></span>Internal Review Backlog Round</div>
-    <div class="legend-item"><span class="dot" style="background:#EF9F27"></span>Avocado</div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th style="width:16%">Sprint</th>
-          <th style="width:21%">Refinement</th>
-          <th style="width:21%">Planning</th>
-          <th style="width:21%">IRBR</th>
-          <th style="width:21%">Avocado</th>
-        </tr>
-      </thead>
-      <tbody id="table-body"></tbody>
-    </table>
-  </div>
-
-  <footer>Rafael joins rotation from sprint 343 · No one repeats back-to-back</footer>
-
-  <div class="resources">
-    <h2>📎 Task resources</h2>
-    <div class="resource-grid">
-      <div class="resource-card">
-        <div class="rc-label">Refinement</div>
-        <a href="https://spine-planning-poker.apps.lab.dynatrace.org/create-session" target="_blank">Poker Planning →</a>
+      <div class="sprint-row">
+        <div>
+          <div class="sprint-label">Current sprint</div>
+          <div class="sprint-num" id="sprint-display">Sprint 340</div>
+        </div>
+        <div class="btn-group">
+          <button onclick="prevSprint()">← Prev</button>
+          <button onclick="nextSprint()">Next →</button>
+          <button class="btn-reset" onclick="resetSprint()">
+            Reset to 340
+          </button>
+        </div>
       </div>
-      <div class="resource-card">
-        <div class="rc-label">Planning</div>
-        <a href="https://dynatrace-my.sharepoint.com/:x:/p/javier_fernandez/EZe_aOrliihFqsJWTGMPdzEBaO3wCqWZjFKy5UwvvGJa8g?e=EeVWet" target="_blank">Planning spreadsheet →</a>
+
+      <div class="cards" id="act-cards"></div>
+
+      <div class="legend">
+        <div class="legend-item">
+          <span class="dot" style="background: #378add"></span>Refinement
+        </div>
+        <div class="legend-item">
+          <span class="dot" style="background: #1d9e75"></span>Planning
+        </div>
+        <div class="legend-item">
+          <span class="dot" style="background: #d4537e"></span>Internal Review
+          Backlog Round
+        </div>
+        <div class="legend-item">
+          <span class="dot" style="background: #ef9f27"></span>Avocado
+        </div>
       </div>
-      <div class="resource-card">
-        <div class="rc-label">Avocado</div>
-        <a href="https://dt-rnd.atlassian.net/wiki/spaces/BCN/pages/132859141/Petra" target="_blank">Avocado duties →</a>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 16%">Sprint</th>
+              <th style="width: 21%">Refinement</th>
+              <th style="width: 21%">Planning</th>
+              <th style="width: 21%">IRBR</th>
+              <th style="width: 21%">Avocado</th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
       </div>
-      <div class="resource-card">
-        <div class="rc-label">Internal Review Backlog Round</div>
-        <a href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2440037192/Tasks+and+goals+Internal+review+339" target="_blank">Backlog round →</a>
-        <div class="rc-note">
-          <a href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2439054426/Internal+Review+2026+04+28" target="_blank">Agenda →</a>
-          · Updated links shared on the day. Check the <a href="https://dynatrace.enterprise.slack.com/archives/C02P2E28EP3" target="_blank">Slack channel</a> for the most recent docs.
+
+      <footer>
+        Rafael joins rotation from sprint 343 · No one repeats back-to-back
+      </footer>
+
+      <div class="resources">
+        <h2>📎 Task resources</h2>
+        <div class="resource-grid">
+          <div class="resource-card">
+            <div class="rc-label">Refinement</div>
+            <a
+              href="https://spine-planning-poker.apps.lab.dynatrace.org/create-session"
+              target="_blank"
+              >Poker Planning →</a
+            >
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Planning</div>
+            <a
+              href="https://dynatrace-my.sharepoint.com/:x:/p/javier_fernandez/EZe_aOrliihFqsJWTGMPdzEBaO3wCqWZjFKy5UwvvGJa8g?e=EeVWet"
+              target="_blank"
+              >Planning spreadsheet →</a
+            >
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Internal Review Backlog Round</div>
+            <a
+              href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2440037192/Tasks+and+goals+Internal+review+339"
+              target="_blank"
+              >Backlog round →</a
+            >
+            <div class="rc-note">
+              <a
+                href="https://dt-rnd.atlassian.net/wiki/spaces/DAT/pages/2439054426/Internal+Review+2026+04+28"
+                target="_blank"
+                >Agenda →</a
+              >
+              · Updated links shared on the day. Check the
+              <a
+                href="https://dynatrace.enterprise.slack.com/archives/C02P2E28EP3"
+                target="_blank"
+                >Slack channel</a
+              >
+              for the most recent docs.
+            </div>
+          </div>
+          <div class="resource-card">
+            <div class="rc-label">Avocado</div>
+            <a
+              href="https://dt-rnd.atlassian.net/wiki/spaces/BCN/pages/132859141/Petra"
+              target="_blank"
+              >Avocado duties →</a
+            >
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<script>
-  // Sprint 339 assignments (last sprint):
-  // Refinement → Dani (left), Planning → Edu, IRBR → Javi, Avocado → Edu
-  // Luca, Filippo, Ale → nothing
-  //
-  // Sprint 340 constraints:
-  // - Javi NOT on IRBR (did it in 339)
-  // - Edu NOT on Planning (did it in 339)
-  // - Edu NOT on Avocado (did it in 339)
-  // - Rafael skipped until sprint 343
-  //
-  // Pool for 340-342: [Luca, Filippo, Edu, Javi, Ale] (5 people, no Rafael)
-  // Pool for 343+:    [Luca, Filippo, Edu, Javi, Ale, Rafael] (6 people)
-  //
-  // We hand-pick sprint 340 assignments to satisfy all constraints, then rotate from there.
-  //
-  // Sprint 340 (manually set, satisfies all constraints):
-  //   Refinement → Ale     (idx 4 in restricted pool)
-  //   Planning   → Luca    (idx 0)
-  //   IRBR       → Filippo (idx 1) — not Javi ✓
-  //   Avocado    → Javi    (idx 3) — not Edu ✓, Javi wanted on Avocado ✓
-  //
-  // From sprint 341 onward, each activity advances by +1 in its pool each sprint.
-
-  const RESTRICTED_POOL = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale'];
-  const FULL_POOL       = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale', 'Rafael'];
-  const ACTIVITIES      = ['Refinement', 'Planning', 'Internal Review Backlog Round', 'Avocado'];
-  const START           = 340;
-  const RAFAEL_FROM     = 343;
-  const SPRINTS_SHOWN   = 10;
-
-  // Fixed Avocado order starting sprint 340 (cycles through all 6 including Rafael at 342)
-  const AVOCADO_ORDER = ['Javi', 'Filippo', 'Rafael', 'Luca', 'Ale', 'Edu'];
-
-  // Starting indices in RESTRICTED_POOL for sprint 340 (excludes Avocado, handled separately)
-  // Refinement → Ale (idx 4), Planning → Luca (idx 0), IRBR → Filippo (idx 1)
-  const START_IDX_RESTRICTED = [4, 0, 1];
-
-  function getStartIdxFull() {
-    const delta = RAFAEL_FROM - START;
-    return [0, 1, 2].map(i => {
-      const rName = RESTRICTED_POOL[(START_IDX_RESTRICTED[i] + delta) % RESTRICTED_POOL.length];
-      return FULL_POOL.indexOf(rName);
-    });
-  }
-
-  const START_IDX_FULL = getStartIdxFull();
-
-  function assign(sprint) {
-    const restricted = sprint < RAFAEL_FROM;
-    const pool       = restricted ? RESTRICTED_POOL : FULL_POOL;
-    const n          = pool.length;
-    const baseIdx    = restricted ? START_IDX_RESTRICTED : START_IDX_FULL;
-    const delta      = sprint - (restricted ? START : RAFAEL_FROM);
-    const first3     = [0, 1, 2].map(i => pool[(baseIdx[i] + delta + n) % n]);
-    const avocado    = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
-    return [...first3, avocado];
-  }
-
-  const ACT_STYLE = [
-    { bg: '#E6F1FB', text: '#185FA5' },
-    { bg: '#E1F5EE', text: '#0F6E56' },
-    { bg: '#FBEAF0', text: '#993556' },
-    { bg: '#FAEEDA', text: '#854F0B' },
-  ];
-
-  let current = START;
-
-  function renderCards() {
-    const a = assign(current);
-    document.getElementById('act-cards').innerHTML = ACTIVITIES.map((act, i) => `
-      <div class="card">
-        <div class="card-title">${act}</div>
-        <div class="card-person">${a[i]}</div>
-        <div class="card-badge" style="background:${ACT_STYLE[i].bg};color:${ACT_STYLE[i].text}">Sprint ${current}</div>
-      </div>`).join('');
-    document.getElementById('sprint-display').textContent = `Sprint ${current}`;
-  }
-
-  function renderTable() {
-    const start = Math.max(START, current - 2);
-    document.getElementById('table-body').innerHTML =
-      Array.from({ length: SPRINTS_SHOWN }, (_, k) => start + k).map(s => {
-        const a   = assign(s);
-        const cls = s === current ? 'current' : s < current ? 'past' : '';
-        const skipped = s < RAFAEL_FROM;
-        const sprintLabel = `${s === current ? '▶ ' : ''}Sprint ${s}${skipped ? '<span class="skip-badge">−Rafael</span>' : ''}`;
-        return `<tr class="${cls}">
-          <td style="font-weight:${s===current?'500':'400'}">${sprintLabel}</td>
-          ${a.map(n => `<td>${n}</td>`).join('')}
-        </tr>`;
-      }).join('');
-  }
-
-  function render() { renderCards(); renderTable(); }
-  function nextSprint() { current++; render(); }
-  function prevSprint() { if (current > 1) { current--; render(); } }
-  function resetSprint() { current = START; render(); }
-
-  render();
-</script>
-</body>
+    <script src="main.js"></script>
+  </body>
 </html>
