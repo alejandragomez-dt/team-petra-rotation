@@ -67,3 +67,9 @@ footer { margin-top: 2rem; font-size: 12px; color: #b4b2a9; text-align: center; 
 .resource-card a:hover { text-decoration: underline; }
 .resource-card .rc-note { font-size: 11px; color: #888780; margin-top: 4px; line-height: 1.5; }
 .resource-card .rc-note a { font-size: 11px; font-weight: 400; }
+.rc-scope { margin-top: 8px; }
+.rc-scope strong { display: block; font-size: 12px; color: #555550; margin-bottom: 4px; }
+.rc-scope p { margin-bottom: 2px; }
+.rc-scope ul { margin: 4px 0 0 1rem; padding: 0; list-style: disc; }
+.rc-scope ul li { margin-bottom: 3px; }
+.rc-scope code { font-family: monospace; background: #f1efe8; padding: 1px 4px; border-radius: 3px; }

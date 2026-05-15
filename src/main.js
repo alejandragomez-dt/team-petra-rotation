@@ -24,6 +24,9 @@ function getStartIdxFull() {
 
 const START_IDX_FULL = getStartIdxFull();
 
+// Sprint-specific Planning overrides (used when the rotation would double-assign someone)
+const PLANNING_OVERRIDES = { 341: 'Ale' };
+
 function assign(sprint) {
   const restricted = sprint < RAFAEL_FROM;
   const pool       = restricted ? RESTRICTED_POOL : FULL_POOL;
@@ -32,6 +35,21 @@ function assign(sprint) {
   const delta      = sprint - (restricted ? START : RAFAEL_FROM);
   const first3     = [0, 1, 2].map(i => pool[(baseIdx[i] + delta + n) % n]);
   const avocado    = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
+
+  // Resolve double-assignment: if Planning == Avocado, swap Planning out
+  if (first3[1] === avocado) {
+    if (PLANNING_OVERRIDES[sprint]) {
+      first3[1] = PLANNING_OVERRIDES[sprint];
+    } else {
+      const taken = new Set([first3[0], first3[2], avocado]);
+      const startIdx = pool.indexOf(first3[1]);
+      for (let offset = 1; offset < n; offset++) {
+        const candidate = pool[(startIdx + offset) % n];
+        if (!taken.has(candidate)) { first3[1] = candidate; break; }
+      }
+    }
+  }
+
   return [...first3, avocado];
 }
 
@@ -42,7 +60,18 @@ const ACT_STYLE = [
   { bg: '#FAEEDA', text: '#854F0B' },
 ];
 
-let current = START;
+// Sprint 340 started on May 1 2026; each sprint is 15 days
+const SPRINT_START_DATE = new Date('2026-05-01');
+const SPRINT_DURATION   = 15;
+
+function getCurrentSprint() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysSinceStart = Math.floor((today - SPRINT_START_DATE) / (1000 * 60 * 60 * 24));
+  return START + Math.max(0, Math.floor(daysSinceStart / SPRINT_DURATION));
+}
+
+let current = getCurrentSprint();
 
 function renderCards() {
   const a = assign(current);
@@ -75,6 +104,6 @@ function render() { renderCards(); renderTable(); }
 // Expose navigation functions to global scope for onclick handlers in HTML
 window.nextSprint  = () => { current++; render(); };
 window.prevSprint  = () => { if (current > 1) { current--; render(); } };
-window.resetSprint = () => { current = START; render(); };
+window.resetSprint = () => { current = getCurrentSprint(); render(); };
 
 render();
