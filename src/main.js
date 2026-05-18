@@ -4,7 +4,7 @@ const RESTRICTED_POOL = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale'];
 const FULL_POOL       = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale', 'Rafael'];
 const ACTIVITIES      = ['Refinement', 'Planning', 'Internal Review Backlog Round', 'Avocado'];
 const START           = 340;
-const RAFAEL_FROM     = 343;
+const RAFAEL_FROM     = 342;
 const SPRINTS_SHOWN   = 10;
 
 // Fixed Avocado order — Rafael included at 342 as an exception
