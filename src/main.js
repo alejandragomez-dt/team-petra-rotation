@@ -1,67 +1,48 @@
 import './styles.css';
 
-const RESTRICTED_POOL = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale'];
+// Sprint 341: Javi absent (IRBR removed, was his task) + Rafael not yet in
+const RESTRICTED_POOL = ['Luca', 'Filippo', 'Edu', 'Ale'];
 const FULL_POOL       = ['Luca', 'Filippo', 'Edu', 'Javi', 'Ale', 'Rafael'];
-const ACTIVITIES      = ['Refinement', 'Planning', 'Internal Review Backlog Round', 'Avocado'];
-const START           = 340;
-const RAFAEL_FROM     = 342;
+const ACTIVITIES      = ['Refinement', 'Planning', 'Avocado'];
+const START           = 341;
+const RAFAEL_FROM     = 342; // also when Javi returns
 const SPRINTS_SHOWN   = 10;
 
-// Fixed Avocado order — Rafael included at 342 as an exception
-const AVOCADO_ORDER = ['Javi', 'Filippo', 'Rafael', 'Luca', 'Ale', 'Edu'];
+// Avocado 6-cycle from sprint 341. Javi gets it at sprint 346.
+const AVOCADO_ORDER = ['Filippo', 'Rafael', 'Luca', 'Ale', 'Edu', 'Javi'];
 
-// Starting indices in RESTRICTED_POOL for sprint 340 (Refinement, Planning, IRBR only)
-// Refinement → Ale (4), Planning → Luca (0), IRBR → Filippo (1)
-const START_IDX_RESTRICTED = [4, 0, 1];
+// Restricted (sprint 341 only): Ref=Luca(0), Plan=Ale(3)
+const REF_IDX_RESTRICTED  = 0;
+const PLAN_IDX_RESTRICTED = 3;
 
-function getStartIdxFull() {
-  const delta = RAFAEL_FROM - START;
-  return [0, 1, 2].map(i => {
-    const name = RESTRICTED_POOL[(START_IDX_RESTRICTED[i] + delta) % RESTRICTED_POOL.length];
-    return FULL_POOL.indexOf(name);
-  });
-}
-
-const START_IDX_FULL = getStartIdxFull();
-
-// Sprint-specific Planning overrides (used when the rotation would double-assign someone)
-const PLANNING_OVERRIDES = { 341: 'Ale' };
+// Full pool (342+): start indices chosen to be conflict-free with the Avocado sequence.
+// Verified: no same-sprint collision and no back-to-back repeat across the full 6-sprint cycle.
+const REF_IDX_FULL  = 1; // Filippo
+const PLAN_IDX_FULL = 0; // Luca
 
 function assign(sprint) {
   const restricted = sprint < RAFAEL_FROM;
   const pool       = restricted ? RESTRICTED_POOL : FULL_POOL;
   const n          = pool.length;
-  const baseIdx    = restricted ? START_IDX_RESTRICTED : START_IDX_FULL;
   const delta      = sprint - (restricted ? START : RAFAEL_FROM);
-  const first3     = [0, 1, 2].map(i => pool[(baseIdx[i] + delta + n) % n]);
-  const avocado    = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
+  const refStart   = restricted ? REF_IDX_RESTRICTED  : REF_IDX_FULL;
+  const planStart  = restricted ? PLAN_IDX_RESTRICTED : PLAN_IDX_FULL;
 
-  // Resolve double-assignment: if Planning == Avocado, swap Planning out
-  if (first3[1] === avocado) {
-    if (PLANNING_OVERRIDES[sprint]) {
-      first3[1] = PLANNING_OVERRIDES[sprint];
-    } else {
-      const taken = new Set([first3[0], first3[2], avocado]);
-      const startIdx = pool.indexOf(first3[1]);
-      for (let offset = 1; offset < n; offset++) {
-        const candidate = pool[(startIdx + offset) % n];
-        if (!taken.has(candidate)) { first3[1] = candidate; break; }
-      }
-    }
-  }
+  const ref      = pool[(refStart  + delta + n) % n];
+  const plan     = pool[(planStart + delta + n) % n];
+  const avocado  = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
 
-  return [...first3, avocado];
+  return [ref, plan, avocado];
 }
 
 const ACT_STYLE = [
   { bg: '#E6F1FB', text: '#185FA5' },
   { bg: '#E1F5EE', text: '#0F6E56' },
-  { bg: '#FBEAF0', text: '#993556' },
   { bg: '#FAEEDA', text: '#854F0B' },
 ];
 
-// Sprint 340 started on May 1 2026; each sprint is 15 days
-const SPRINT_START_DATE = new Date('2026-05-01');
+// Sprint 341 started on May 16 2026; each sprint is 15 days
+const SPRINT_START_DATE = new Date('2026-05-16');
 const SPRINT_DURATION   = 15;
 
 function getCurrentSprint() {
@@ -91,7 +72,7 @@ function renderTable() {
       const a       = assign(s);
       const cls     = s === current ? 'current' : s < current ? 'past' : '';
       const skipped = s < RAFAEL_FROM;
-      const sprintLabel = `${s === current ? '▶ ' : ''}Sprint ${s}${skipped ? '<span class="skip-badge">−Rafael</span>' : ''}`;
+      const sprintLabel = `${s === current ? '▶ ' : ''}Sprint ${s}${skipped ? '<span class="skip-badge">−Javi −Rafael</span>' : ''}`;
       return `<tr class="${cls}">
         <td style="font-weight:${s === current ? '500' : '400'}">${sprintLabel}</td>
         ${a.map(n => `<td>${n}</td>`).join('')}
