@@ -80,11 +80,15 @@ function renderTable() {
     }).join('');
 }
 
-function render() { renderCards(); renderTable(); }
+function render() {
+  renderCards();
+  renderTable();
+  document.getElementById('btn-prev').disabled = current <= START;
+}
 
 // Expose navigation functions to global scope for onclick handlers in HTML
 window.nextSprint  = () => { current++; render(); };
-window.prevSprint  = () => { if (current > 1) { current--; render(); } };
+window.prevSprint  = () => { if (current > START) { current--; render(); } };
 window.resetSprint = () => { current = getCurrentSprint(); render(); };
 
 render();
