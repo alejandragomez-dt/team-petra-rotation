@@ -20,6 +20,13 @@ const PLAN_IDX_RESTRICTED = 3;
 const REF_IDX_FULL  = 1; // Filippo
 const PLAN_IDX_FULL = 0; // Luca
 
+// Manual swaps for specific sprints (only override the listed activity index).
+// 0=Refinement, 1=Planning, 2=Avocado
+const OVERRIDES = {
+  343: { 0: 'Javi' },
+  344: { 0: 'Edu'  },
+};
+
 function assign(sprint) {
   const restricted = sprint < RAFAEL_FROM;
   const pool       = restricted ? RESTRICTED_POOL : FULL_POOL;
@@ -32,7 +39,10 @@ function assign(sprint) {
   const plan     = pool[(planStart + delta + n) % n];
   const avocado  = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
 
-  return [ref, plan, avocado];
+  const result = [ref, plan, avocado];
+  const ov = OVERRIDES[sprint];
+  if (ov) Object.entries(ov).forEach(([i, name]) => { result[i] = name; });
+  return result;
 }
 
 const ACT_STYLE = [
