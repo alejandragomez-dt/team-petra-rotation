@@ -24,7 +24,7 @@ const PLAN_IDX_FULL = 0; // Luca
 // 0=Refinement, 1=Planning, 2=Avocado
 const OVERRIDES = {
   343: { 0: 'Javi' },
-  344: { 0: 'Edu'  },
+  344: { 0: 'Edu', 1: 'Rafael' },
 };
 
 function assign(sprint) {
