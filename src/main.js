@@ -51,8 +51,8 @@ const ACT_STYLE = [
   { bg: '#FAEEDA', text: '#854F0B' },
 ];
 
-// Sprint 341 started on May 16 2026; each sprint is 15 days
-const SPRINT_START_DATE = new Date('2026-05-16');
+// Sprint 341 started on May 12 2026; each sprint is 15 days
+const SPRINT_START_DATE = new Date(2026, 4, 12); // local time to avoid UTC offset issues
 const SPRINT_DURATION   = 15;
 
 function getCurrentSprint() {
