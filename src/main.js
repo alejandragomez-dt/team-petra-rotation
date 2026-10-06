@@ -1,15 +1,15 @@
 import "./styles.css";
 
-// Sprint 341: Javi absent (IRBR removed, was his task) + Rafael not yet in
+// Sprint 341: Javi absent (IRBR removed, was his task) + Rafa not yet in
 const RESTRICTED_POOL = ["Luca", "Filippo", "Edu", "Ale"];
-const FULL_POOL = ["Luca", "Filippo", "Edu", "Javi", "Ale", "Rafael"];
+const FULL_POOL = ["Luca", "Filippo", "Edu", "Javi", "Ale", "Rafa"];
 const ACTIVITIES = ["Refinement", "Planning", "Avocado"];
 const START = 341;
-const RAFAEL_FROM = 342; // also when Javi returns
+const RAFA_FROM = 342; // also when Javi returns
 const SPRINTS_SHOWN = 10;
 
 // Avocado 6-cycle from sprint 341. Javi gets it at sprint 346.
-const AVOCADO_ORDER = ["Filippo", "Rafael", "Luca", "Ale", "Edu", "Javi"];
+const AVOCADO_ORDER = ["Filippo", "Rafa", "Luca", "Ale", "Edu", "Javi"];
 
 // Restricted (sprint 341 only): Ref=Luca(0), Plan=Ale(3)
 const REF_IDX_RESTRICTED = 0;
@@ -24,14 +24,17 @@ const PLAN_IDX_FULL = 0; // Luca
 // 0=Refinement, 1=Planning, 2=Avocado
 const OVERRIDES = {
   343: { 0: "Javi" },
-  344: { 0: "Edu", 1: "Rafael" },
+  344: { 0: "Edu", 1: "Rafa" },
+  351: { 0: "Rafa" },
+  352: { 0: "Ale", 1: "Rafa" },
+  353: { 1: "Ale" },
 };
 
 function assign(sprint) {
-  const restricted = sprint < RAFAEL_FROM;
+  const restricted = sprint < RAFA_FROM;
   const pool = restricted ? RESTRICTED_POOL : FULL_POOL;
   const n = pool.length;
-  const delta = sprint - (restricted ? START : RAFAEL_FROM);
+  const delta = sprint - (restricted ? START : RAFA_FROM);
   const refStart = restricted ? REF_IDX_RESTRICTED : REF_IDX_FULL;
   const planStart = restricted ? PLAN_IDX_RESTRICTED : PLAN_IDX_FULL;
 
@@ -91,8 +94,8 @@ function renderTable() {
     .map((s) => {
       const a = assign(s);
       const cls = s === current ? "current" : s < current ? "past" : "";
-      const skipped = s < RAFAEL_FROM;
-      const sprintLabel = `${s === current ? "▶ " : ""}Sprint ${s}${skipped ? '<span class="skip-badge">−Javi −Rafael</span>' : ""}`;
+      const skipped = s < RAFA_FROM;
+      const sprintLabel = `${s === current ? "▶ " : ""}Sprint ${s}${skipped ? '<span class="skip-badge">−Javi −Rafa</span>' : ""}`;
       return `<tr class="${cls}">
         <td style="font-weight:${s === current ? "500" : "400"}">${sprintLabel}</td>
         ${a.map((n) => `<td>${n}</td>`).join("")}
