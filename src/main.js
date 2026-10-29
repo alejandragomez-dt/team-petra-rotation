@@ -8,6 +8,20 @@ const START = 341;
 const RAFA_FROM = 342; // also when Javi returns
 const SPRINTS_SHOWN = 10;
 
+// Double-length sprints, split into two regular halves ("a" and "b") that rotate normally.
+// 352: Oct 16 – Nov 13 2026 · 355: Dec 11 2026 – Jan 8 2027
+const SPLIT_SPRINTS = [352, 355];
+
+// A slot is one regular 2-week sprint (or half of a split sprint), counted from START.
+function sprintLabel(slot) {
+  const labels = [];
+  for (let s = START; labels.length <= slot; s++)
+    labels.push(...(SPLIT_SPRINTS.includes(s) ? [`${s}a`, `${s}b`] : [`${s}`]));
+  return labels[slot];
+}
+
+const RAFA_SLOT = RAFA_FROM - START; // no split sprints before RAFA_FROM
+
 // Avocado 6-cycle from sprint 341. Javi gets it at sprint 346.
 const AVOCADO_ORDER = ["Filippo", "Rafa", "Luca", "Ale", "Edu", "Javi"];
 
@@ -20,30 +34,30 @@ const PLAN_IDX_RESTRICTED = 3;
 const REF_IDX_FULL = 1; // Filippo
 const PLAN_IDX_FULL = 0; // Luca
 
-// Manual swaps for specific sprints (only override the listed activity index).
+// Manual swaps for specific sprint labels (only override the listed activity index).
 // 0=Refinement, 1=Planning, 2=Avocado
 const OVERRIDES = {
   343: { 0: "Javi" },
   344: { 0: "Edu", 1: "Rafa" },
   351: { 0: "Rafa" },
-  352: { 0: "Ale", 1: "Rafa" },
-  353: { 1: "Ale" },
+  "352a": { 0: "Ale", 1: "Rafa" },
+  "352b": { 1: "Ale" },
 };
 
-function assign(sprint) {
-  const restricted = sprint < RAFA_FROM;
+function assign(slot) {
+  const restricted = slot < RAFA_SLOT;
   const pool = restricted ? RESTRICTED_POOL : FULL_POOL;
   const n = pool.length;
-  const delta = sprint - (restricted ? START : RAFA_FROM);
+  const delta = slot - (restricted ? 0 : RAFA_SLOT);
   const refStart = restricted ? REF_IDX_RESTRICTED : REF_IDX_FULL;
   const planStart = restricted ? PLAN_IDX_RESTRICTED : PLAN_IDX_FULL;
 
   const ref = pool[(refStart + delta + n) % n];
   const plan = pool[(planStart + delta + n) % n];
-  const avocado = AVOCADO_ORDER[(sprint - START) % AVOCADO_ORDER.length];
+  const avocado = AVOCADO_ORDER[slot % AVOCADO_ORDER.length];
 
   const result = [ref, plan, avocado];
-  const ov = OVERRIDES[sprint];
+  const ov = OVERRIDES[sprintLabel(slot)];
   if (ov)
     Object.entries(ov).forEach(([i, name]) => {
       result[i] = name;
@@ -57,20 +71,20 @@ const ACT_STYLE = [
   { bg: "#FAEEDA", text: "#854F0B" },
 ];
 
-// Sprint 341 started on May 15 2026; each sprint is 14 days (every other Friday)
+// Sprint 341 started on May 15 2026; each slot is 14 days (every other Friday)
 const SPRINT_START_DATE = new Date(2026, 4, 15); // local time to avoid UTC offset issues
 const SPRINT_DURATION = 14;
 
-function getCurrentSprint() {
+function getCurrentSlot() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const daysSinceStart = Math.floor(
     (today - SPRINT_START_DATE) / (1000 * 60 * 60 * 24),
   );
-  return START + Math.max(0, Math.floor(daysSinceStart / SPRINT_DURATION));
+  return Math.max(0, Math.floor(daysSinceStart / SPRINT_DURATION));
 }
 
-let current = getCurrentSprint();
+let current = getCurrentSlot();
 
 function renderCards() {
   const a = assign(current);
@@ -79,14 +93,14 @@ function renderCards() {
     <div class="card">
       <div class="card-title">${act}</div>
       <div class="card-person">${a[i]}</div>
-      <div class="card-badge" style="background:${ACT_STYLE[i].bg};color:${ACT_STYLE[i].text}">Sprint ${current}</div>
+      <div class="card-badge" style="background:${ACT_STYLE[i].bg};color:${ACT_STYLE[i].text}">Sprint ${sprintLabel(current)}</div>
     </div>`,
   ).join("");
-  document.getElementById("sprint-display").textContent = `Sprint ${current}`;
+  document.getElementById("sprint-display").textContent = `Sprint ${sprintLabel(current)}`;
 }
 
 function renderTable() {
-  const start = Math.max(START, current - 2);
+  const start = Math.max(0, current - 2);
   document.getElementById("table-body").innerHTML = Array.from(
     { length: SPRINTS_SHOWN },
     (_, k) => start + k,
@@ -94,10 +108,10 @@ function renderTable() {
     .map((s) => {
       const a = assign(s);
       const cls = s === current ? "current" : s < current ? "past" : "";
-      const skipped = s < RAFA_FROM;
-      const sprintLabel = `${s === current ? "▶ " : ""}Sprint ${s}${skipped ? '<span class="skip-badge">−Javi −Rafa</span>' : ""}`;
+      const skipped = s < RAFA_SLOT;
+      const label = `${s === current ? "▶ " : ""}Sprint ${sprintLabel(s)}${skipped ? '<span class="skip-badge">−Javi −Rafa</span>' : ""}`;
       return `<tr class="${cls}">
-        <td style="font-weight:${s === current ? "500" : "400"}">${sprintLabel}</td>
+        <td style="font-weight:${s === current ? "500" : "400"}">${label}</td>
         ${a.map((n) => `<td>${n}</td>`).join("")}
       </tr>`;
     })
@@ -107,7 +121,7 @@ function renderTable() {
 function render() {
   renderCards();
   renderTable();
-  document.getElementById("btn-prev").disabled = current <= START;
+  document.getElementById("btn-prev").disabled = current <= 0;
 }
 
 // Expose navigation functions to global scope for onclick handlers in HTML
@@ -116,13 +130,13 @@ window.nextSprint = () => {
   render();
 };
 window.prevSprint = () => {
-  if (current > START) {
+  if (current > 0) {
     current--;
     render();
   }
 };
 window.resetSprint = () => {
-  current = getCurrentSprint();
+  current = getCurrentSlot();
   render();
 };
 
