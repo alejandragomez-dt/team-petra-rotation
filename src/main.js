@@ -1,5 +1,46 @@
 import "./styles.css";
 
+const THEME_KEY = "theme";
+const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+const readStoredTheme = () => {
+  try {
+    const v = localStorage.getItem(THEME_KEY);
+    return v === "light" || v === "dark" ? v : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredTheme = (theme) => {
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // storage unavailable: theme applies for this session only
+  }
+};
+
+const activeTheme = () =>
+  document.documentElement.dataset.theme ?? (darkQuery.matches ? "dark" : "light");
+
+function renderThemeButton() {
+  const dark = activeTheme() === "dark";
+  const btn = document.getElementById("btn-theme");
+  btn.textContent = dark ? "☀" : "☾";
+  btn.title = btn.ariaLabel = dark ? "Switch to light theme" : "Switch to dark theme";
+}
+
+const stored = readStoredTheme();
+if (stored) document.documentElement.dataset.theme = stored;
+renderThemeButton();
+darkQuery.addEventListener("change", renderThemeButton);
+document.getElementById("btn-theme").addEventListener("click", () => {
+  const next = activeTheme() === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  writeStoredTheme(next);
+  renderThemeButton();
+});
+
 // Sprint 341: Javi absent (IRBR removed, was his task) + Rafa not yet in
 const RESTRICTED_POOL = ["Luca", "Filippo", "Edu", "Ale"];
 const FULL_POOL = ["Luca", "Filippo", "Edu", "Javi", "Ale", "Rafa"];
@@ -65,12 +106,6 @@ function assign(slot) {
   return result;
 }
 
-const ACT_STYLE = [
-  { bg: "#E6F1FB", text: "#185FA5" },
-  { bg: "#E1F5EE", text: "#0F6E56" },
-  { bg: "#FAEEDA", text: "#854F0B" },
-];
-
 // Sprint 341 started on May 15 2026; each slot is 14 days (every other Friday)
 const SPRINT_START_DATE = new Date(2026, 4, 15); // local time to avoid UTC offset issues
 const SPRINT_DURATION = 14;
@@ -93,7 +128,7 @@ function renderCards() {
     <div class="card">
       <div class="card-title">${act}</div>
       <div class="card-person">${a[i]}</div>
-      <div class="card-badge" style="background:${ACT_STYLE[i].bg};color:${ACT_STYLE[i].text}">Sprint ${sprintLabel(current)}</div>
+      <div class="card-badge badge-${i}">Sprint ${sprintLabel(current)}</div>
     </div>`,
   ).join("");
   document.getElementById("sprint-display").textContent = `Sprint ${sprintLabel(current)}`;
